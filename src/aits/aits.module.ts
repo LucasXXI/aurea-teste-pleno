@@ -5,9 +5,11 @@ import { UpdateAitUseCase } from 'src/application/useCases/ait.update.useCase';
 import { ListAitUseCase } from 'src/application/useCases/ait.list.useCase';
 import { DeleteAitUseCase } from 'src/application/useCases/ait.delete.useCase';
 import { ProcessAitUseCase } from 'src/application/useCases/ait.process.useCase';
+import { PrismaModule } from 'src/infrastructure/modules/ait.prisma.module';
 
 @Module({
   controllers: [AitsController],
+  imports: [PrismaModule],
   providers: [
     {
       provide: 'IRegisterAitUseCase',
