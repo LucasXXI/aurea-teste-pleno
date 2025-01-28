@@ -3,7 +3,7 @@ import { IDeleteAitUseCase } from "src/domain/interfaces/useCases/aitDelete.useC
 
 @Injectable()
 export class DeleteAitUseCase implements IDeleteAitUseCase {
-    execute(id: string): Promise<any> {
+    delete(id: string): Promise<any> {
         throw new Error("Method not implemented.");
     }
 }

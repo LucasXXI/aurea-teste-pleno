@@ -14,7 +14,7 @@ export class AitsService {
     // private readonly processAitUseCase: IProcessAitUseCase
   ) {}
   create(createAitDto: CreateAitDto) {
-    return this.registerAitUseCase.execute(createAitDto);
+    return this.registerAitUseCase.register(createAitDto);
   }
 
   findAll() {

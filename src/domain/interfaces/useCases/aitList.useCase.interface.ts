@@ -1,5 +1,5 @@
 export interface IListAitsUseCase {
-    execute(): Promise<any[]>;
+    listAll(): Promise<any[]>;
 
-    executeByFineId(fineId: string): Promise<any[]>;
+    listByFineId(fineId: string): Promise<any[]>;
 }

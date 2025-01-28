@@ -1,3 +1,3 @@
 export interface IRegisterAitUseCase {
-    execute(data: any): Promise<any>;
+    register(data: any): Promise<any>;
 }

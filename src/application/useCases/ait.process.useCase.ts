@@ -3,7 +3,7 @@ import { IProcessAitUseCase } from "src/domain/interfaces/useCases/ait.processor
 
 @Injectable()
 export class ProcessAitUseCase implements IProcessAitUseCase {
-    async execute(): Promise<any> {
+    async processAllFines(): Promise<any> {
         throw new Error("Method not implemented.");
     }
 }
