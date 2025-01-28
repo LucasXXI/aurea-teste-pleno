@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Ait" ALTER COLUMN "status" SET DEFAULT 'PENDENTE';

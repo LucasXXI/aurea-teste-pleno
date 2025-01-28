@@ -12,3 +12,20 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum Status {
+  PAGO
+  PENDENTE
+}
+
+model Ait{
+  id String @id @default(uuid())
+  placa_veiculo String
+  data_infracao DateTime
+  descricao String
+  valor_multa Decimal
+  status Status @default(PENDENTE)
+  data_processamento DateTime?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
