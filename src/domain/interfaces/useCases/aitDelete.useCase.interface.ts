@@ -1,3 +1,3 @@
 export interface IDeleteAitUseCase {
-    delete(id: string): Promise<void>;
+    delete(id: string): Promise<string | Error>;
 }

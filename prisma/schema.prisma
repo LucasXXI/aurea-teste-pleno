@@ -19,7 +19,7 @@ enum Status {
 }
 
 model Ait{
-  id String @id @default(uuid())
+  id String @id 
   placa_veiculo String
   data_infracao DateTime
   descricao String

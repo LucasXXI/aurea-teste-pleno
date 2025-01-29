@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Inject } from '@nestjs/common';
-import { CreateAitDto } from './dto/create-ait.dto';
-import { UpdateAitDto } from './dto/update-ait.dto';
+import { CreateAitDto } from '../dto/create-ait.dto';
+import { UpdateAitDto } from '../dto/update-ait.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { IProcessAitUseCase } from 'src/domain/interfaces/useCases/ait.processor.useCase.interface';
 import { IDeleteAitUseCase } from 'src/domain/interfaces/useCases/aitDelete.useCase.interface';
@@ -27,6 +27,9 @@ export class AitsController {
   @ApiOperation({ summary: 'Cadastro de AIT' })
   @ApiResponse({ status: 201, description: 'Sucesso' })
   create(@Body() createAitDto: CreateAitDto) {
+
+    //validar CreateDto e dps enviar ao useCase (talvez usar zod?)
+
     return this.registerAitUseCase.register(createAitDto);
   }
 

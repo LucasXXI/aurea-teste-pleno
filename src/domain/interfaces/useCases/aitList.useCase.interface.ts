@@ -1,5 +1,5 @@
 export interface IListAitsUseCase {
-    listAll(): Promise<any[]>;
+    listAll(): Promise<any[] | Error >;
 
-    listByFineId(fineId: string): Promise<any[]>;
+    listByFineId(fineId: string): Promise<any | Error>;
 }

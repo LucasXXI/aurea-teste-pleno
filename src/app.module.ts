@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AitsModule } from './aits/aits.module';
+import { AitsModule } from './presentation/modules/aits.module';
 
 @Module({
   imports: [AitsModule]

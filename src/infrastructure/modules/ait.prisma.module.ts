@@ -11,6 +11,6 @@ import { AitRepository } from '../database/repository/ait.repository';
         useClass: AitRepository
     }
   ],
-  exports: [PrismaService, AitRepository],
+  exports: [PrismaService, 'IAitRepository'],
 })
 export class PrismaModule {}

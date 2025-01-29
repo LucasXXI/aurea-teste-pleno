@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AitsController } from './aits.controller';
+import { AitsController } from '../controllers/aits.controller';
 import { registerAitUseCase } from 'src/application/useCases/ait.register.useCase';
 import { UpdateAitUseCase } from 'src/application/useCases/ait.update.useCase';
 import { ListAitUseCase } from 'src/application/useCases/ait.list.useCase';

@@ -11,5 +11,5 @@ export class CreateAitDto {
     descricao: string;
 
     @ApiProperty({ example: 150.5, description: 'Valor da multa' })
-    valorMulta: string;
+    valorMulta: number;
 }

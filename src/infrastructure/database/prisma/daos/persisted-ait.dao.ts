@@ -1,27 +1,22 @@
-import { Ait } from "src/domain/entities/ait.entity";
-import { StatusAit } from "src/domain/enums/ait.status.enum";
-
-export class PersistedAit extends Ait {
-    ait: Ait
+export class AitDAO{
     id: string
-    status: StatusAit;
-    createdAt: Date;
-    updatedAt: Date;
-    dataProcessamento?: Date;
+    placaVeiculo: string
+    dataInfracao: Date
+    descricao: string
+    valorMulta: number
 
     constructor(
-        ait: Ait,
         id: string,
-        status: StatusAit,
-        createdAt: Date,
-        updatedAt: Date,
-        dataProcessamento?: Date
+        placaVeiculo: string,
+        dataInfracao: Date,
+        descricao: string,
+        valorMulta: number
     ) {
-        super()
         this.id = id
-        this.status = status
-        this.createdAt = createdAt
-        this.updatedAt = updatedAt
-        this.dataProcessamento = dataProcessamento
+        this.placaVeiculo = placaVeiculo
+        this.dataInfracao = dataInfracao
+        this.descricao = descricao
+        this.valorMulta = valorMulta
     }
+
 }
