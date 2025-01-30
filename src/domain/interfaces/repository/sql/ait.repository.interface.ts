@@ -1,6 +1,6 @@
 import { Ait } from "src/domain/entities/ait.entity";
-import { ListAitsDAO } from "src/infrastructure/database/prisma/daos/listed-ait.dao";
-import { AitDAO } from "src/infrastructure/database/prisma/daos/persisted-ait.dao";
+import { ListAitsDAO } from "src/infrastructure/database/prisma/daos/lait.listed.dao";
+import { AitDAO } from "src/infrastructure/database/prisma/daos/ait.persisted.dao";
 
 export interface IAitRepository {
     create(data: AitDAO): Promise< any | Error>;

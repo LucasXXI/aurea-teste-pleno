@@ -1,3 +1,3 @@
 export interface IDeleteAitUseCase {
-    delete(id: string): Promise<string | Error>;
+    delete(id: string): Promise<boolean | Error>;
 }

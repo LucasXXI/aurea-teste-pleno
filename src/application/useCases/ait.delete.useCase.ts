@@ -9,15 +9,16 @@ export class DeleteAitUseCase implements IDeleteAitUseCase {
         private readonly repository: IAitRepository
     ) {}
         
-    async delete(id: string): Promise<string> {
+    async delete(id: string): Promise<boolean | Error> {
         const deletedAit = await this.repository.delete(id);
 
-        if(deletedAit == true){
-            return 'Ait deletado com sucesso';
+        if(deletedAit instanceof Error) return deletedAit;
+
+        if(deletedAit != true){
+            return false;
         }
 
-        return 'Erro ao deletar ait';
-
+        return true;
         //add fluxo pra validar
     }
 }

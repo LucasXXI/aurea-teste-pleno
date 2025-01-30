@@ -1,16 +1,16 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { IAitRepository } from "src/domain/interfaces/repository/sql/ait.repository.interface";
-import { AitDAO } from "../prisma/daos/persisted-ait.dao";
-import { ListAitsDAO } from "../prisma/daos/listed-ait.dao";
-import { AitListMapper } from "../mappers/ait.list.mapper";
+import { AitDAO } from "../prisma/daos/ait.persisted.dao";
+import { ListAitsDAO } from "../prisma/daos/lait.listed.dao";
+import { AitListMapper } from "../../../application/mappers/ait.listed.mapper";
 import { Prisma } from "@prisma/client";
+import { CreatedAitMapper } from "src/application/mappers/ait.created.mapper";
 
 @Injectable()
 export class AitRepository implements IAitRepository {
     constructor
     (
-        //@Inject('PrismaService')
         private prisma: PrismaService
     ) {}
 
@@ -26,15 +26,8 @@ export class AitRepository implements IAitRepository {
                 }
             });
 
-            return {
-                message: 'Ait criado com sucesso',
-                data: {
-                    id: ait.id,
-                    status: ait.status,
-                    createdAt: ait.created_at,
-            }
-        };
-
+            return CreatedAitMapper.toDomain(ait);
+            
         } catch (error) {
             return Error(error.message);
         }
@@ -46,7 +39,7 @@ export class AitRepository implements IAitRepository {
                 orderBy: { data_infracao: 'desc' }
             });
 
-            if(msgOut.length === 0){
+            if(msgOut.length == 0){
                 return Error('Nenhum ait encontrado');
             }
             return AitListMapper.toDAOList(msgOut);

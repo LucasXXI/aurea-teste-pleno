@@ -1,5 +1,5 @@
 import { Ait } from "src/domain/entities/ait.entity";
-import { AitDAO } from "src/infrastructure/database/prisma/daos/persisted-ait.dao";
+import { AitDAO } from "src/infrastructure/database/prisma/daos/ait.persisted.dao";
 
 export class AitPersistMapper {
     static toPersistedAit(ait: Ait) : AitDAO {

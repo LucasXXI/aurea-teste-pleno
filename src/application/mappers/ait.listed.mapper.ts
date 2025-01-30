@@ -1,5 +1,5 @@
 import { Ait as PrismaAit, Status } from "@prisma/client";
-import { ListAitsDAO } from "../prisma/daos/listed-ait.dao";
+import { ListAitsDAO } from "../../infrastructure/database/prisma/daos/lait.listed.dao";
 import { StatusAit } from "src/domain/enums/ait.status.enum";
 
 export class AitListMapper{
