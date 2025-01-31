@@ -103,6 +103,7 @@ export class AitsController {
   @Get('process')
   @ApiOperation({ summary: 'Processa AITs Pendentes' })
   @ApiResponse({ status: 200, description: 'Sucesso' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async process(): Promise<any> {
       return await this.processAitUseCase.processAllFines();
   }
