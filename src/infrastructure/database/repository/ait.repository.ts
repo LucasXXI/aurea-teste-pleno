@@ -6,6 +6,7 @@ import { ListAitsDAO } from "../prisma/daos/lait.listed.dao";
 import { AitListMapper } from "../../../application/mappers/ait.listed.mapper";
 import { Prisma } from "@prisma/client";
 import { CreatedAitMapper } from "src/application/mappers/ait.created.mapper";
+import { EntityNotFoundError } from "src/domain/exceptions/ait.notFound.error";
 
 @Injectable()
 export class AitRepository implements IAitRepository {
@@ -39,13 +40,14 @@ export class AitRepository implements IAitRepository {
                 orderBy: { data_infracao: 'desc' }
             });
 
-            if(msgOut.length == 0){
-                return Error('Nenhum ait encontrado');
+            if(!msgOut || msgOut.length == 0){
+                return new EntityNotFoundError('Nenhum Ait encontrado');
             }
+
             return AitListMapper.toDAOList(msgOut);
 
         } catch (error) {
-            return Error(error.message);
+            return new Error(`Erro ao buscar AITs: ${error.message}`);
         }
 
     }
@@ -58,14 +60,14 @@ export class AitRepository implements IAitRepository {
                 }
             });
 
-            if(msgOut === null){
-                return Error('Ait não encontrado');
+            if(!msgOut){
+                return new EntityNotFoundError(`Ait com o id ${id} não encontrado`);
             }
 
             return AitListMapper.toDAO(msgOut);
             
         } catch (error) {
-            return Error(error.message);
+            return new Error(`Erro ao buscar AIT: ${error.message}`);
         }
     }
 

@@ -7,6 +7,7 @@ import { IDeleteAitUseCase } from 'src/domain/interfaces/useCases/aitDelete.useC
 import { IListAitsUseCase } from 'src/domain/interfaces/useCases/aitList.useCase.interface';
 import { IRegisterAitUseCase } from 'src/domain/interfaces/useCases/aitRegister.useCase.interface';
 import { IUpdateAitUseCase } from 'src/domain/interfaces/useCases/aitUpdate.useCase.interface';
+import { EntityNotFoundError } from 'src/domain/exceptions/ait.notFound.error';
 
 @Controller('ait')
 export class AitsController {
@@ -44,9 +45,9 @@ export class AitsController {
   async findAll() {
     const listedAits = await this.listAitsUseCase.listAll();
 
-    if(listedAits instanceof Error) throw listedAits;
+    if(listedAits instanceof EntityNotFoundError) throw new NotFoundException(listedAits.message);
 
-    if(listedAits.length == 0) throw new NotFoundException('Nenhum Ait encontrado!');
+    if(listedAits instanceof Error) throw new Error(`Erro inesperado ao buscar AITs: ${listedAits.message}`);
 
     return listedAits;
 
@@ -59,10 +60,10 @@ export class AitsController {
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async findOne(@Param('id') id: string) {
     const ait = await this.listAitsUseCase.listByFineId(id);
-
-    if(ait instanceof Error) throw ait;
-
-    if(ait == null) throw new NotFoundException('Ait não encontrado!');
+    
+    if(ait instanceof EntityNotFoundError) throw new NotFoundException('Ait não encontrado!');
+    
+    if(ait instanceof Error) throw new Error(`Erro inesperado ao buscar AIT: ${ait.message}`);    ;
 
     return ait;
   }
@@ -90,8 +91,7 @@ export class AitsController {
 
     if(deletedAit instanceof Error) throw deletedAit;
     
-    return HttpCode(200);
-
+    HttpCode(200);
   }
 
   @Get('process')
