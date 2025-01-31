@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, NotFoundException, HttpCode } from '@nestjs/common';
-import { CreateAitDto } from '../../application/dtos/requests/create-ait.dto';
-import { UpdateAitDto } from '../../application/dtos/requests/update-ait.dto';
+import { CreateAitDto } from '../../application/dtos/requests/ait.create.dto';
+import { UpdateAitDto } from '../../application/dtos/requests/ait.update.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { IProcessAitUseCase } from 'src/domain/interfaces/useCases/ait.processor.useCase.interface';
 import { IDeleteAitUseCase } from 'src/domain/interfaces/useCases/aitDelete.useCase.interface';
@@ -72,7 +72,13 @@ export class AitsController {
   @ApiOperation({ summary: 'Atualização de AIT' })
   @ApiResponse({ status: 200, description: 'Sucesso' })
   async update(@Param('id') id: string, @Body() updateAitDto: UpdateAitDto) {
-    return this.updateAitUseCase.update(id, updateAitDto);
+    const updatedAit = await this.updateAitUseCase.update(id, updateAitDto);
+
+    if(updatedAit instanceof EntityNotFoundError) throw new NotFoundException(updatedAit.message);
+
+    if(updatedAit instanceof Error) throw updatedAit;
+
+    return updatedAit;
   }
 
   @Delete(':id')

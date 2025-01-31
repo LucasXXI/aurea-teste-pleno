@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { CreateAitDto } from "src/application/dtos/requests/create-ait.dto";
+import { CreateAitDto } from "src/application/dtos/requests/ait.create.dto";
 import { IAitRepository } from "src/domain/interfaces/repository/sql/ait.repository.interface";
 import { IRegisterAitUseCase } from "src/domain/interfaces/useCases/aitRegister.useCase.interface";
 import { AitMapper } from "../mappers/ait.entitty.mapper";

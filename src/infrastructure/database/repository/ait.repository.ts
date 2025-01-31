@@ -7,6 +7,7 @@ import { AitListMapper } from "../../../application/mappers/ait.listed.mapper";
 import { Prisma } from "@prisma/client";
 import { CreatedAitMapper } from "src/application/mappers/ait.created.mapper";
 import { EntityNotFoundError } from "src/domain/exceptions/ait.notFound.error";
+import { UpdatedAitMapper } from "src/application/mappers/ait.updated.mapper";
 
 @Injectable()
 export class AitRepository implements IAitRepository {
@@ -71,13 +72,30 @@ export class AitRepository implements IAitRepository {
         }
     }
 
-    async update(id: string, data: any): Promise<any> {
-        return await this.prisma.ait.update({
-            where: {
-                id: id
-            },
-            data: data
-        });
+    async update(id: string, data: any): Promise<any | Error> {
+        try {
+            const updatedAit = await this.prisma.ait.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    placa_veiculo: data.placaVeiculo,
+                    data_infracao: data.dataInfracao,
+                    descricao: data.descricao,
+                    valor_multa: data.valorMulta,
+                    updated_at: new Date()
+                }
+            });
+            
+            return UpdatedAitMapper.toDomain(updatedAit);
+
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+                return new EntityNotFoundError(`Ait com o id ${id} não encontrado`);
+            }
+
+            return Error(error.message);
+        }
     }
 
     async delete(id: string): Promise<boolean | Error>{

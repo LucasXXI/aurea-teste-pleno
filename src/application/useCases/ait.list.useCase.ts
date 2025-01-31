@@ -19,7 +19,7 @@ export class ListAitUseCase implements IListAitsUseCase{
         } 
 
         if(aits instanceof Error){
-            return new Error(`Erro inesperado ao buscar AITs: ${aits.message}`);
+            return new Error(aits.message);
         }
 
         return aits;
@@ -34,7 +34,7 @@ export class ListAitUseCase implements IListAitsUseCase{
         }
     
         if (ait instanceof Error) {
-            return new Error(`Erro inesperado ao buscar AIT: ${ait.message}`);
+            return new Error(ait.message);
         }
     
         return ait;
