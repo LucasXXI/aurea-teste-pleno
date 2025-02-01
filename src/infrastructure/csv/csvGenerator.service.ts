@@ -46,7 +46,7 @@ export class CsvGenratorService{
 
             await access(filePath, constants.F_OK);
 
-            return filePath;
+            return csv;
 
         } catch (error) {
             throw new CsvGeneratorError(`Erro ao gerar CSV: ${error.message}`);

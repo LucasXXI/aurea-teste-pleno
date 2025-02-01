@@ -14,7 +14,11 @@ export class RabbitMqService {
             await channel.assertQueue(this.aitReportQueue, { durable: true });
 
             return new Promise((resolve, reject) => {
-                channel.sendToQueue(this.aitReportQueue, Buffer.from(JSON.stringify(message)), {}, async (err, ok) => {
+                channel.sendToQueue(this.aitReportQueue, Buffer.from(message), 
+                {
+                    persistent: true,
+                    contentType: 'text/csv',
+                }, async (err) => {
                     if (err) {
                         console.error(`Falha ao publicar mensagem na fila "${this.aitReportQueue}":`, err);
                         await channel.close();

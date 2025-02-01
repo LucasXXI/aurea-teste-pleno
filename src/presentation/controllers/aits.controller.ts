@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, NotFoundException, HttpCode, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, NotFoundException, HttpCode, InternalServerErrorException, ForbiddenException } from '@nestjs/common';
 import { CreateAitDto } from '../../application/dtos/requests/ait.create.dto';
 import { UpdateAitDto } from '../../application/dtos/requests/ait.update.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -10,6 +10,7 @@ import { IUpdateAitUseCase } from 'src/domain/interfaces/useCases/aitUpdate.useC
 import { EntityNotFoundError } from 'src/domain/exceptions/ait.notFound.error';
 import { CsvGeneratorError } from 'src/domain/exceptions/csvGenerator.failed';
 import { PublishInQueueError } from 'src/domain/exceptions/rabbitmq.failed';
+import { EntityAlreadyProcessed } from 'src/domain/exceptions/ait.alreadyProcessed.error';
 
 @Controller('ait')
 export class AitsController {
@@ -28,7 +29,7 @@ export class AitsController {
 
   @Post()
   @ApiOperation({ summary: 'Cadastro de AIT' })
-  @ApiResponse({ status: 201, description: 'Sucesso' })
+  @ApiResponse({ status: 201, description: 'Success' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async create(@Body() createAitDto: CreateAitDto) {
@@ -41,7 +42,7 @@ export class AitsController {
 
   @Get()
   @ApiOperation({ summary: 'Listagem de AITs' })
-  @ApiResponse({ status: 200, description: 'Sucesso' })
+  @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async findAll() {
@@ -57,7 +58,7 @@ export class AitsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Listagem de AIT especifica' })
-  @ApiResponse({ status: 200, description: 'Sucesso' })
+  @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async findOne(@Param('id') id: string) {
@@ -72,10 +73,16 @@ export class AitsController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Atualização de AIT' })
-  @ApiResponse({ status: 200, description: 'Sucesso' })
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Not Found' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async update(@Param('id') id: string, @Body() updateAitDto: UpdateAitDto) {
     const updatedAit = await this.updateAitUseCase.update(id, updateAitDto);
 
+    if(updatedAit instanceof EntityAlreadyProcessed) throw new ForbiddenException(updatedAit.message);
+    
     if(updatedAit instanceof EntityNotFoundError) throw new NotFoundException(updatedAit.message);
 
     if(updatedAit instanceof Error) throw updatedAit;
@@ -104,7 +111,7 @@ export class AitsController {
 
   @Get('process/pendings')
   @ApiOperation({ summary: 'Processador de AITs Pendentes' })
-  @ApiResponse({ status: 200, description: 'Sucesso' })
+  @ApiResponse({ status: 200, description: 'Success' })
   @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async process() {
@@ -118,6 +125,6 @@ export class AitsController {
           throw new InternalServerErrorException(processedAits.message);
       }
 
-      return processedAits;
+      return {message: processedAits};
   }
 }
