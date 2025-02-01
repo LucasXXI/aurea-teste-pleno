@@ -16,6 +16,7 @@ export class AitRepository implements IAitRepository {
         private prisma: PrismaService
     ) {}
 
+    
     async create(data: AitDAO): Promise<any | Error> {
         try {
             const ait = await this.prisma.ait.create({
@@ -40,17 +41,17 @@ export class AitRepository implements IAitRepository {
             const msgOut =  await this.prisma.ait.findMany({
                 orderBy: { data_infracao: 'desc' }
             });
-
+            
             if(!msgOut || msgOut.length == 0){
                 return new EntityNotFoundError('Nenhum Ait encontrado');
             }
-
+            
             return AitListMapper.toDAOList(msgOut);
-
+            
         } catch (error) {
             return new Error(`Erro ao buscar AITs: ${error.message}`);
         }
-
+        
     }
 
     async findOne(id: string): Promise<ListAitsDAO | Error> {
@@ -64,7 +65,7 @@ export class AitRepository implements IAitRepository {
             if(!msgOut){
                 return new EntityNotFoundError(`Ait com o id ${id} não encontrado`);
             }
-
+            
             return AitListMapper.toDAO(msgOut);
             
         } catch (error) {
@@ -88,16 +89,16 @@ export class AitRepository implements IAitRepository {
             });
             
             return UpdatedAitMapper.toDomain(updatedAit);
-
+            
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
                 return new EntityNotFoundError(`Ait com o id ${id} não encontrado`);
             }
-
+            
             return Error(error.message);
         }
     }
-
+    
     async delete(id: string): Promise<boolean | Error>{
         try {
             await this.prisma.ait.delete({
@@ -106,12 +107,43 @@ export class AitRepository implements IAitRepository {
                 }
             });
             return true;
-
+            
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
                 return false
             }
             return Error(error.message);
+        }
+    }
+    
+    async processAits(): Promise<ListAitsDAO[] | Error> {
+        try {
+            const pendingAits = await this.prisma.ait.findMany({
+                where: { status: 'PENDENTE' }
+            });
+    
+            if (!pendingAits || pendingAits.length === 0) {
+                return new EntityNotFoundError('Nenhuma AIT pendente encontrada para processamento');
+            }
+    
+            await this.prisma.ait.updateMany({
+                where: { status: 'PENDENTE' },
+                data: { 
+                    status: 'PAGO', 
+                    data_processamento: new Date(),
+                    updated_at: new Date()
+                }
+            });
+    
+            const updatedAits = await this.prisma.ait.findMany({
+                where: { status: 'PAGO' },
+                orderBy: { data_processamento: 'desc' }
+            });
+    
+            return AitListMapper.toDAOList(updatedAits);
+    
+        } catch (error) {
+            throw new Error(`Erro ao processar AITs: ${error.message}`);
         }
     }
 }

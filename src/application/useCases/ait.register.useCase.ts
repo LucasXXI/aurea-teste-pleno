@@ -19,7 +19,7 @@ export class registerAitUseCase implements IRegisterAitUseCase {
         var msgOut = await this.repository.create(AitPersistMapper.toPersistedAit(ait));
 
         if(msgOut instanceof Error){
-            return msgOut;
+            throw new Error(msgOut.message)
         }
 
         return msgOut;

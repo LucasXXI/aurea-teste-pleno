@@ -8,4 +8,5 @@ export interface IAitRepository {
     findOne(id: string): Promise<ListAitsDAO | Error>;
     update(id: string, data: Ait): Promise< any | Error>;
     delete(id: string): Promise<boolean | Error>;
+    processAits(): Promise<ListAitsDAO[] | Error>;
   }

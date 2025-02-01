@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, NotFoundException, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, NotFoundException, HttpCode, InternalServerErrorException } from '@nestjs/common';
 import { CreateAitDto } from '../../application/dtos/requests/ait.create.dto';
 import { UpdateAitDto } from '../../application/dtos/requests/ait.update.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -8,6 +8,8 @@ import { IListAitsUseCase } from 'src/domain/interfaces/useCases/aitList.useCase
 import { IRegisterAitUseCase } from 'src/domain/interfaces/useCases/aitRegister.useCase.interface';
 import { IUpdateAitUseCase } from 'src/domain/interfaces/useCases/aitUpdate.useCase.interface';
 import { EntityNotFoundError } from 'src/domain/exceptions/ait.notFound.error';
+import { CsvGeneratorError } from 'src/domain/exceptions/csvGenerator.failed';
+import { PublishInQueueError } from 'src/domain/exceptions/rabbitmq.failed';
 
 @Controller('ait')
 export class AitsController {
@@ -100,11 +102,22 @@ export class AitsController {
     HttpCode(200);
   }
 
-  @Get('process')
-  @ApiOperation({ summary: 'Processa AITs Pendentes' })
+  @Get('process/pendings')
+  @ApiOperation({ summary: 'Processador de AITs Pendentes' })
   @ApiResponse({ status: 200, description: 'Sucesso' })
+  @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  async process(): Promise<any> {
-      return await this.processAitUseCase.processAllFines();
+  async process() {
+      const processedAits = await this.processAitUseCase.processAllFines();
+
+      if(processedAits instanceof EntityNotFoundError){
+          throw new NotFoundException(processedAits.message);
+      }
+
+      if(processedAits instanceof CsvGeneratorError || processedAits instanceof PublishInQueueError){
+          throw new InternalServerErrorException(processedAits.message);
+      }
+
+      return processedAits;
   }
 }

@@ -6,21 +6,28 @@ import { connect } from "amqplib";
 export class RabbitMqService {
     private readonly aitReportQueue = 'processed-ait-queue';
 
-    async publish(message: any) : Promise<void | Error>{
+    async publish(message: string) : Promise<boolean | Error>{
         try {
-            const conn = await connect('amqp://localhost');
-            const channel = await conn.createChannel();
+            const conn = await connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}`);
+            const channel = await conn.createConfirmChannel();
 
             await channel.assertQueue(this.aitReportQueue, { durable: true });
 
-            channel.sendToQueue(this.aitReportQueue, Buffer.from(JSON.stringify(message)), {
-                persistent: true
+            return new Promise((resolve, reject) => {
+                channel.sendToQueue(this.aitReportQueue, Buffer.from(JSON.stringify(message)), {}, async (err, ok) => {
+                    if (err) {
+                        console.error(`Falha ao publicar mensagem na fila "${this.aitReportQueue}":`, err);
+                        await channel.close();
+                        await conn.close();
+                        reject(false);
+                    } else {
+                        console.log(`Mensagem confirmada na fila "${this.aitReportQueue}":`, message);
+                        await channel.close();
+                        await conn.close();
+                        resolve(true);
+                    }
+                });
             });
-
-            console.log(` Mensagem enviada para ${this.aitReportQueue}:`, message);
-
-            await channel.close();
-            await conn.close();
         } catch (error) {
             console.error('Erro ao publicar mensagem no RabbitMQ:', error);
             throw new Error(`Erro ao publicar no RabbitMQ: ${error.message}`);

@@ -8,7 +8,7 @@ export class ListAitsDAO{
     valorMulta: number
     status: StatusAit
     createdAt: Date
-    dataprocesamento: Date | null
+    dataProcessamento: Date | null
     updatedAt: Date | null
 
     constructor(
@@ -29,7 +29,7 @@ export class ListAitsDAO{
         this.valorMulta = valorMulta
         this.status = status
         this.createdAt = createdAt
-        this.dataprocesamento = dataprocesamento ?? null
+        this.dataProcessamento = dataprocesamento ?? null
         this.updatedAt = updatedAt ?? null
     }
 }

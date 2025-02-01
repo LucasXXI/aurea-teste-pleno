@@ -23,9 +23,8 @@ export class ListAitUseCase implements IListAitsUseCase{
         }
 
         return aits;
-
-        //return await this.repository.list();
     }
+    
     async listByFineId(fineId: string) : Promise<any | Error> {
         const ait = await this.repository.findOne(fineId);
 
