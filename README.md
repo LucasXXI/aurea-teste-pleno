@@ -195,7 +195,7 @@ Após rodar essa rota, as mensagens serão enviadas para o RabbitMQ e poderão s
 ## 📌 Autor
 Desenvolvido por **Lucas Leal** 🚀
 
-📌 **LinkedIn:** https://linkedin.com/in/lucasleal2001 
+📌 **LinkedIn:** https://linkedin.com/in/lucasleal2001   
 📌 **GitHub:** https://github.com/lucasxxi  
 📌 **Email:** lucasleal2001@gmail.com 
 
