@@ -109,7 +109,7 @@ export class AitsController {
   @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async update(
-    @Param('id') paramId: IdParamDTO,
+    @Param() paramId: IdParamDTO,
     @Body() updateAitDto: UpdateAitDto,
   ) {
     const updatedAit = await this.updateAitUseCase.update(
@@ -140,7 +140,7 @@ export class AitsController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  async remove(@Param('id') paramId: IdParamDTO) {
+  async remove(@Param() paramId: IdParamDTO) {
     const deletedAit = await this.deleteAitUseCase.delete(paramId.id);
 
     if (deletedAit == false) {
@@ -150,6 +150,7 @@ export class AitsController {
     if (deletedAit instanceof Error) throw deletedAit;
 
     HttpCode(200);
+    return { message : 'Ait removido com sucesso!' };
   }
 
   @Put('process/pendings')
