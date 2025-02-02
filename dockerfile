@@ -31,4 +31,4 @@ COPY --from=builder /app/prisma ./prisma
 EXPOSE 3000
 
 # 1️⃣1️⃣ Executa `prisma migrate deploy` antes de iniciar a aplicação
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["node", "dist/main.js"]

@@ -10,8 +10,8 @@ services:
       - postgres
       - rabbitmq
     environment:
-      DATABASE_URL: postgresql://postgres:password1234$@localhost:5432/postgres?schema=public 
-      RABBITMQ_HOST: localhost
+      DATABASE_URL: "postgresql://postgres:prisma@localhost:5432/postgres?schema=public"
+      RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: rabbitmq
       RABBITMQ_PASSWORD: rabbitmq
@@ -19,19 +19,24 @@ services:
       - "3000:3000"
     networks:
       - backend
-    command: ["npx", "prisma", "migrate", "deploy"]
 
   postgres:
     image: postgres:17-alpine
     container_name: postgres_db_
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password1234$
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=prisma
     ports:
       - "5432:5432"
     networks:
       - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prisma -d postgres"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
