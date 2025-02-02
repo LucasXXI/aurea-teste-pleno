@@ -3,25 +3,28 @@ version: "3.8"
 services:
   # Serviço da aplicação NestJS
   app:
-    build: .
+    build: 
+      context: .
+      dockerfile: dockerfile
     container_name: nest_app
     restart: always
     depends_on:
       - postgres
       - rabbitmq
     environment:
-      DATABASE_URL: "postgresql://postgres:prisma@localhost:5432/postgres?schema=public"
+      DATABASE_URL: postgresql://postgres:prisma@postgres_db:5432/postgres?schema=public
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: rabbitmq
       RABBITMQ_PASSWORD: rabbitmq
     ports:
-      - "3000:3000"
+      - '3000:3000'
     networks:
       - backend
 
   postgres:
-    image: postgres:17-alpine
+    image: postgres:15-alpine
+    hostname: postgres_db
     container_name: postgres_db_
     restart: always
     environment:
@@ -29,7 +32,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=prisma
     ports:
-      - "5432:5432"
+      - '5432:5432'
     networks:
       - backend
     healthcheck:
@@ -48,8 +51,8 @@ services:
       RABBITMQ_DEFAULT_USER: rabbitmq
       RABBITMQ_DEFAULT_PASS: rabbitmq
     ports:
-      - "5672:5672" # Porta para conexões do RabbitMQ
-      - "15672:15672" # Interface de gerenciamento
+      - '5672:5672' # Porta para conexões do RabbitMQ
+      - '15672:15672' # Interface de gerenciamento
     networks:
       - backend
 

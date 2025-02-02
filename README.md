@@ -1,18 +1,16 @@
-# 🚀 Teste Técnico - Desenvolvedor Backend Pleno | Aurea Phygital
+# 🚀 Teste Técnico - Desenvolvedor Backend
 
-Este projeto é um teste técnico para a vaga de **Desenvolvedor Backend Pleno** na **Aurea Phygital**. Ele consiste em um sistema backend desenvolvido com **NestJS**, utilizando **Prisma ORM** para comunicação com o banco de dados **PostgreSQL**, além de **RabbitMQ** para processamento assíncrono de mensagens.
+Este projeto é um teste técnico para a vaga de **Desenvolvedor Backend**. Ele consiste em um sistema backend desenvolvido com **NestJS**, utilizando **Prisma ORM** para comunicação com o banco de dados **PostgreSQL**, além de **RabbitMQ** para processamento assíncrono de mensagens.
 
 ---
 
 ## 📌 Tecnologias Utilizadas
-- **Node.js 20** - Ambiente de execução
+- **Node.js** - Ambiente de execução
 - **NestJS** - Framework backend
-- **Prisma ORM** - Conexão com o PostgreSQL
-- **PostgreSQL 17** - Banco de dados
+- **PostgreSQL** - Banco de dados Relacional
+- **Prisma ORM** - Conexão com o PostgreSQL e Manipulação de dados
 - **RabbitMQ** - Mensageria para filas de processamento
 - **json2csv** - Conversão de JSON para CSV
-- **amqplib** - Conexão com o RabbitMQ
-- **class-validator** - Validação de dados
 - **Swagger (NestJS OpenAPI)** - Documentação da API
 - **Docker e Docker Compose** - Containerização da aplicação
 
@@ -25,40 +23,26 @@ Este projeto é um teste técnico para a vaga de **Desenvolvedor Backend Pleno**
 
 ### **2️⃣ Clonar o Repositório**
 ```sh
-git clone https://github.com/seu-usuario/seu-repositorio.git
-cd seu-repositorio
+git clone https://github.com/LucasXXI/aurea-teste-pleno
+cd aurea-teste-pleno
 ```
-
-### **3️⃣ Criar o Arquivo `.env`**
+### **3️⃣ Subir os Contêineres**
 ```sh
-touch .env
-```
-📌 **Adicione as variáveis de ambiente:**
-```env
-DATABASE_URL=postgresql://postgres:1234@postgres:5432/postgres?schema=public
-RABBITMQ_HOST=rabbitmq
-RABBITMQ_PORT=5672
-RABBITMQ_USER=rabbitmq
-RABBITMQ_PASSWORD=rabbitmq
-```
-
-### **4️⃣ Subir os Contêineres**
-```sh
-docker-compose up -d --build
+docker-compose -f docker-compose.yml up --build -d
 ```
 ✅ **Isso irá iniciar:**
 - O servidor **NestJS** na porta `3000`
 - O banco de dados **PostgreSQL** na porta `5432`
 - O serviço de filas **RabbitMQ** nas portas `5672` e `15672`
 
-### **5️⃣ Verificar se os Contêineres Estão Rodando**
+### **4️⃣ Verificar se os Contêineres Estão Rodando**
 ```sh
 docker ps
 ```
 
-### **6️⃣ Aplicar as Migrations do Prisma** (caso necessário)
+### **5️⃣ Aplicar as Migrations do Prisma** 
 ```sh
-docker-compose exec app npx prisma migrate deploy
+docker-compose -f docker-compose.yml exec app npm run prisma:migrate
 ```
 
 ---
@@ -77,20 +61,48 @@ http://localhost:3000/swagger
 
 ## 📌 Rotas da API
 
-### **1️⃣ AITs (Autos de Infração de Trânsito)**
+### **AITs (Autos de Infração de Trânsito)**
 
 | Método | Rota               | Descrição |
 |--------|-------------------|------------|
 | **GET**  | `/ait`            | Lista todas as AITs |
 | **GET**  | `/ait/:id`        | Busca uma AIT específica pelo ID |
-| **PATCH** | `/ait/:id`        | Atualiza parcialmente uma AIT |
+| **PATCH** | `/ait/:id`        | Atualiza uma AIT específica |
 | **DELETE** | `/ait/:id`        | Remove uma AIT |
 | **PUT** | `/ait/process/pendings` | Processa as AITs pendentes, gera um CSV e publica no RabbitMQ |
 
 🔹 **Observações:**
-- O **processamento de AITs** altera o status das pendentes para **"PAGO"** e gera um CSV com as informações processadas.
-- O CSV é enviado ao **RabbitMQ** para consumo posterior.
+- O **processamento de AITs** altera o status das AITs criadas com o status **"PENDENTE"** para **"PAGO"** e gera um CSV com as informações processadas.
+- Só poderão ser atualizadas as AITs que possuírem o status **"PENDENTE"**.
+- O conteúdo do CSV gerado é enviado ao **RabbitMQ** para consumo posterior.
 
+## 📌 Como Acessar o RabbitMQ e Ver as Mensagens Publicadas
+### **1️⃣ Acessar o Painel de Administração do RabbitMQ**
+Abra o navegador e acesse:
+```
+http://localhost:15672
+```
+
+### **2️⃣ Login no RabbitMQ**
+Use as credenciais padrão configuradas no `docker-compose.yml`:
+- **Usuário:** `rabbitmq`
+- **Senha:** `rabbitmq`
+
+### **3️⃣ Acessar a Fila de Mensagens**
+1. No menu superior, clique em **"Queues"** (Filas).
+2. Localize a fila onde as mensagens são publicadas.
+3. Clique no nome da fila para visualizar detalhes.
+4. Para ver as mensagens publicadas, role até a seção **"Get messages"** e clique em **"Get Message(s)"**.
+
+### **4️⃣ Testar o Processamento na Rota `/process/pendings`**
+Para processar as mensagens e publicá-las no RabbitMQ, faça uma requisição para:
+```sh
+curl -X PUT http://localhost:3000/ait/process/pendings
+```
+Após rodar essa rota, as mensagens serão enviadas para o RabbitMQ e poderão ser visualizadas seguindo os passos acima.
+
+🔹 **Observações:**
+- O **processamento de AITs** é realizado **somente** caso hajam AITs com status **"PENDENTE"** no Banco de Dados e retorna o CSV incluindo todas as AITs já processadas. Assim, garanta 
 ---
 
 ## 📌 Bibliotecas Externas Utilizadas
@@ -139,12 +151,8 @@ http://localhost:3000/swagger
 ## 📌 Autor
 Desenvolvido por **Lucas Leal** 🚀
 
-📌 **LinkedIn:** [Seu Perfil](https://linkedin.com/in/lucasleal2001)  
-📌 **GitHub:** [Seu GitHub](https://github.com/lucasxxi)  
+📌 **LinkedIn:** https://linkedin.com/in/lucasleal2001 
+📌 **GitHub:** https://github.com/lucasxxi  
 📌 **Email:** lucasleal2001@gmail.com 
 
 ---
-
-## 📌 Licença
-Este projeto está sob a licença **MIT**. Sinta-se livre para usá-lo e modificá-lo. 😊
-
