@@ -2,7 +2,50 @@
 
 Este projeto é um teste técnico para a vaga de **Desenvolvedor Backend**. Ele consiste em um sistema backend desenvolvido com **NestJS**, utilizando **Prisma ORM** para comunicação com o banco de dados **PostgreSQL**, além de **RabbitMQ** para processamento assíncrono de mensagens.
 
----
+## 📌 Arquitetura do Projeto
+Este projeto segue os princípios da **Clean Architecture**, organizando o código em camadas bem definidas para garantir separação de responsabilidades e facilitar a manutenção. A estrutura do projeto é dividida nas seguintes camadas:
+
+### **1️⃣ Application**
+Contém as regras de negócio da aplicação, incluindo **casos de uso**, **DTOs** e **mapeadores**. Essa camada orquestra a lógica central da aplicação.
+
+### **2️⃣ Domain**
+Responsável por definir **entidades**, **enums**, **exceções** e **interfaces** que representam o núcleo do domínio da aplicação. Esta camada é independente de frameworks e tecnologias externas.
+
+### **3️⃣ Infrastructure**
+Abrange toda a infraestrutura necessária para a aplicação funcionar, como **banco de dados**, **mensageria (RabbitMQ)** e **módulos auxiliares**. É onde ficam as implementações técnicas.
+
+### **4️⃣ Presentation**
+Contém os **controllers**, responsáveis por expor a API e interagir com a camada de aplicação. Esta camada lida com a comunicação externa (HTTP, WebSockets, etc.).
+
+Abaixo está a estrutura do projeto seguindo essa arquitetura:
+
+```
+📂 src
+├── 📂 application
+│   ├── 📂 dtos
+│   │   ├── 📂 requests
+│   │   ├── 📂 responses
+│   ├── 📂 mappers
+│   ├── 📂 useCases
+├── 📂 domain
+│   ├── 📂 entities
+│   ├── 📂 enums
+│   ├── 📂 exceptions
+│   ├── 📂 interfaces
+├── 📂 infrastructure
+│   ├── 📂 csv
+│   ├── 📂 database
+│   ├── 📂 messaging
+│   ├── 📂 modules
+├── 📂 presentation
+│   ├── 📂 controllers
+│   ├── 📂 modules
+├── 📄 app.module.ts
+├── 📄 main.ts
+```
+
+Essa organização garante **baixa acoplamento e alta coesão**, seguindo os princípios da Clean Architecture para facilitar escalabilidade e manutenção do código.
+
 
 ## 📌 Tecnologias Utilizadas
 - **Node.js** - Ambiente de execução
@@ -10,7 +53,7 @@ Este projeto é um teste técnico para a vaga de **Desenvolvedor Backend**. Ele 
 - **PostgreSQL** - Banco de dados Relacional
 - **Prisma ORM** - Conexão com o PostgreSQL e Manipulação de dados
 - **RabbitMQ** - Mensageria para filas de processamento
-- **json2csv** - Conversão de JSON para CSV
+- **json-2-csv** - Conversão de JSON para CSV
 - **Swagger (NestJS OpenAPI)** - Documentação da API
 - **Docker e Docker Compose** - Containerização da aplicação
 
@@ -65,6 +108,7 @@ http://localhost:3000/swagger
 
 | Método | Rota               | Descrição |
 |--------|-------------------|------------|
+| **POST** | `/ait`            | Registra AITs |
 | **GET**  | `/ait`            | Lista todas as AITs |
 | **GET**  | `/ait/:id`        | Busca uma AIT específica pelo ID |
 | **PATCH** | `/ait/:id`        | Atualiza uma AIT específica |
@@ -119,7 +163,7 @@ Após rodar essa rota, as mensagens serão enviadas para o RabbitMQ e poderão s
 - [`amqplib`](https://www.npmjs.com/package/amqplib) → Biblioteca para conexão com o RabbitMQ e envio de mensagens assíncronas
 
 ### **4️⃣ Conversão de JSON para CSV**
-- [`json2csv`](https://www.npmjs.com/package/json2csv) → Biblioteca para converter objetos JSON em arquivos CSV, usados no processamento das AITs
+- [`@json2csv/plainjs`](https://www.npmjs.com/package/@json2csv/plainjs) → Biblioteca para converter objetos JSON em arquivos CSV, usados no processamento das AITs
 
 ### **5️⃣ Documentação da API**
 - [`@nestjs/swagger`](https://www.npmjs.com/package/@nestjs/swagger) → Biblioteca para documentar as rotas da API via Swagger
