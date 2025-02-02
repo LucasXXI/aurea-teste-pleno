@@ -7,9 +7,9 @@ import { CsvGeneratorRepository } from '../csv/repository/csvGenerator.repositor
   providers: [
     CsvGenratorService,
     {
-        provide: 'ICsvGeneratorRepository',
-        useClass: CsvGeneratorRepository
-    }
+      provide: 'ICsvGeneratorRepository',
+      useClass: CsvGeneratorRepository,
+    },
   ],
   exports: [CsvGenratorService, 'ICsvGeneratorRepository'],
 })

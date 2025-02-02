@@ -1,5 +1,7 @@
-export interface IListAitsUseCase {
-    listAll(): Promise<any[] | Error >;
+import { ListAitsDAO } from 'src/infrastructure/database/prisma/daos/lait.listed.dao';
 
-    listByFineId(fineId: string): Promise< any | Error>;
+export interface IListAitsUseCase {
+  listAll(): Promise<ListAitsDAO[] | Error>;
+
+  listByFineId(fineId: string): Promise<ListAitsDAO | Error>;
 }

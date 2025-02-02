@@ -1,3 +1,3 @@
 export interface IProcessAitUseCase {
-    processAllFines(): Promise<string | Error>;
+  processAllFines(): Promise<string | Error>;
 }

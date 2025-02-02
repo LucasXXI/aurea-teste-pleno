@@ -1,4 +1,4 @@
 export enum StatusAit {
-    PAGO = 'PAGO',
-    PENDENTE = 'PENDENTE',
+  PAGO = 'PAGO',
+  PENDENTE = 'PENDENTE',
 }

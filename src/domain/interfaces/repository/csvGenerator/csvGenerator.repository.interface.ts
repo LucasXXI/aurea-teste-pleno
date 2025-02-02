@@ -1,3 +1,3 @@
 export interface ICsvGeneratorRepository {
-    saveCsv(data: any[]): Promise<string | Error>;
+  saveCsv(data: any[]): Promise<string | Error>;
 }

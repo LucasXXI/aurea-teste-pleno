@@ -15,27 +15,27 @@ import { CsvModule } from 'src/infrastructure/modules/ait.csvGenerator.module';
   providers: [
     {
       provide: 'IRegisterAitUseCase',
-      useClass: registerAitUseCase
+      useClass: registerAitUseCase,
     },
     {
       provide: 'IUpdateAitUseCase',
-      useClass: UpdateAitUseCase
+      useClass: UpdateAitUseCase,
     },
     {
       provide: 'IListAitUseCase',
-      useClass: ListAitUseCase
+      useClass: ListAitUseCase,
     },
     {
       provide: 'IDeleteAitUseCase',
-      useClass: DeleteAitUseCase
+      useClass: DeleteAitUseCase,
     },
     {
       provide: 'IUpdateAitUseCase',
-      useClass: UpdateAitUseCase
+      useClass: UpdateAitUseCase,
     },
     {
       provide: 'IProcessAitUseCase',
-      useClass: ProcessAitUseCase
+      useClass: ProcessAitUseCase,
     },
   ],
 })

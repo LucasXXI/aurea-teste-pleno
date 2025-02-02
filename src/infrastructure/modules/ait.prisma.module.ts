@@ -7,9 +7,9 @@ import { AitRepository } from '../database/repository/ait.repository';
   providers: [
     PrismaService,
     {
-        provide: 'IAitRepository',
-        useClass: AitRepository
-    }
+      provide: 'IAitRepository',
+      useClass: AitRepository,
+    },
   ],
   exports: [PrismaService, 'IAitRepository'],
 })

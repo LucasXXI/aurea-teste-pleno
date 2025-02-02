@@ -1,3 +1,3 @@
 export interface IRabbitMqRepository {
-    publish(message: any): Promise<string | Error>;
+  publish(message: any): Promise<string | Error>;
 }

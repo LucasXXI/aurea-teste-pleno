@@ -8,9 +8,8 @@ import { RabbitMqRepository } from '../messaging/rabbitMq/repository/rabbitmq.re
     RabbitMqService,
     {
       provide: 'IRabbitMqRepository',
-      useClass: RabbitMqRepository
-    }
-
+      useClass: RabbitMqRepository,
+    },
   ],
   exports: [RabbitMqService, 'IRabbitMqRepository'],
 })
