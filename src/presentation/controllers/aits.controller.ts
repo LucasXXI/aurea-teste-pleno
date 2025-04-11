@@ -26,6 +26,7 @@ import { CsvGeneratorError } from 'src/domain/exceptions/csvGenerator.failed';
 import { PublishInQueueError } from 'src/domain/exceptions/rabbitmq.failed';
 import { EntityAlreadyProcessed } from 'src/domain/exceptions/ait.alreadyProcessed.error';
 import { IdParamDTO } from 'src/application/dtos/requests/ait.id.dto';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 
 @Controller('ait')
 export class AitsController {
@@ -48,11 +49,34 @@ export class AitsController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async create(@Body() createAitDto: CreateAitDto) {
-    const registeredAit = this.registerAitUseCase.register(createAitDto);
+    const tracer = trace.getTracer('ait-controller');
+    return await tracer.startActiveSpan('create_ait', async (span) => {
+      try {
+        span.setAttribute('request_dto', JSON.stringify(createAitDto));
 
-    if (registeredAit instanceof Error) throw registeredAit;
+        const registeredAit =
+          await this.registerAitUseCase.register(createAitDto);
 
-    return registeredAit;
+        if (registeredAit instanceof Error) {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: registeredAit.message,
+          });
+          throw registeredAit;
+        }
+
+        span.setAttribute('response_data', JSON.stringify(registeredAit));
+        return registeredAit;
+      } catch (error) {
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: error.message,
+        });
+        throw error;
+      } finally {
+        span.end();
+      }
+    });
   }
 
   @Get()
@@ -61,15 +85,41 @@ export class AitsController {
   @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async findAll() {
-    const listedAits = await this.listAitsUseCase.listAll();
+    const tracer = trace.getTracer('ait-controller');
+    return await tracer.startActiveSpan('list_all_aits', async (span) => {
+      try {
+        const listedAits = await this.listAitsUseCase.listAll();
 
-    if (listedAits instanceof EntityNotFoundError)
-      throw new NotFoundException(listedAits.message);
+        if (listedAits instanceof EntityNotFoundError) {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: listedAits.message,
+          });
+          throw new NotFoundException(listedAits.message);
+        }
 
-    if (listedAits instanceof Error)
-      throw new Error(`Erro inesperado ao buscar AITs: ${listedAits.message}`);
+        if (listedAits instanceof Error) {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: listedAits.message,
+          });
+          throw new Error(
+            `Erro inesperado ao buscar AITs: ${listedAits.message}`,
+          );
+        }
 
-    return listedAits;
+        span.setAttribute('response_count', listedAits.length);
+        return listedAits;
+      } catch (error) {
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: error.message,
+        });
+        throw error;
+      } finally {
+        span.end();
+      }
+    });
   }
 
   @Get(':id')
@@ -84,15 +134,41 @@ export class AitsController {
   @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async findOne(@Param() paramId: IdParamDTO) {
-    const ait = await this.listAitsUseCase.listByFineId(paramId.id);
+    const tracer = trace.getTracer('ait-controller');
+    return await tracer.startActiveSpan('find_ait_by_id', async (span) => {
+      try {
+        span.setAttribute('ait_id', paramId.id);
 
-    if (ait instanceof EntityNotFoundError)
-      throw new NotFoundException('Ait não encontrado!');
+        const ait = await this.listAitsUseCase.listByFineId(paramId.id);
 
-    if (ait instanceof Error)
-      throw new Error(`Erro inesperado ao buscar AIT: ${ait.message}`);
+        if (ait instanceof EntityNotFoundError) {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: 'Ait não encontrado!',
+          });
+          throw new NotFoundException('Ait não encontrado!');
+        }
 
-    return ait;
+        if (ait instanceof Error) {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: ait.message,
+          });
+          throw new Error(`Erro inesperado ao buscar AIT: ${ait.message}`);
+        }
+
+        span.setAttribute('response_data', JSON.stringify(ait));
+        return ait;
+      } catch (error) {
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: error.message,
+        });
+        throw error;
+      } finally {
+        span.end();
+      }
+    });
   }
 
   @Patch(':id')
@@ -112,20 +188,53 @@ export class AitsController {
     @Param() paramId: IdParamDTO,
     @Body() updateAitDto: UpdateAitDto,
   ) {
-    const updatedAit = await this.updateAitUseCase.update(
-      paramId.id,
-      updateAitDto,
-    );
+    const tracer = trace.getTracer('ait-controller');
+    return await tracer.startActiveSpan('update_ait', async (span) => {
+      try {
+        span.setAttribute('ait_id', paramId.id);
+        span.setAttribute('request_dto', JSON.stringify(updateAitDto));
 
-    if (updatedAit instanceof EntityAlreadyProcessed)
-      throw new ForbiddenException(updatedAit.message);
+        const updatedAit = await this.updateAitUseCase.update(
+          paramId.id,
+          updateAitDto,
+        );
 
-    if (updatedAit instanceof EntityNotFoundError)
-      throw new NotFoundException(updatedAit.message);
+        if (updatedAit instanceof EntityAlreadyProcessed) {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: updatedAit.message,
+          });
+          throw new ForbiddenException(updatedAit.message);
+        }
 
-    if (updatedAit instanceof Error) throw updatedAit;
+        if (updatedAit instanceof EntityNotFoundError) {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: updatedAit.message,
+          });
+          throw new NotFoundException(updatedAit.message);
+        }
 
-    return updatedAit;
+        if (updatedAit instanceof Error) {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: updatedAit.message,
+          });
+          throw updatedAit;
+        }
+
+        span.setAttribute('response_data', JSON.stringify(updatedAit));
+        return updatedAit;
+      } catch (error) {
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: error.message,
+        });
+        throw error;
+      } finally {
+        span.end();
+      }
+    });
   }
 
   @Delete(':id')
@@ -141,16 +250,41 @@ export class AitsController {
   @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async remove(@Param() paramId: IdParamDTO) {
-    const deletedAit = await this.deleteAitUseCase.delete(paramId.id);
+    const tracer = trace.getTracer('ait-controller');
+    return await tracer.startActiveSpan('delete_ait', async (span) => {
+      try {
+        span.setAttribute('ait_id', paramId.id);
 
-    if (deletedAit == false) {
-      throw new NotFoundException('Ait não encontrado');
-    }
+        const deletedAit = await this.deleteAitUseCase.delete(paramId.id);
 
-    if (deletedAit instanceof Error) throw deletedAit;
+        if (deletedAit === false) {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: 'Ait não encontrado',
+          });
+          throw new NotFoundException('Ait não encontrado');
+        }
 
-    HttpCode(200);
-    return { message : 'Ait removido com sucesso!' };
+        if (deletedAit instanceof Error) {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: deletedAit.message,
+          });
+          throw deletedAit;
+        }
+
+        HttpCode(200);
+        return { message: 'Ait removido com sucesso!' };
+      } catch (error) {
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: error.message,
+        });
+        throw error;
+      } finally {
+        span.end();
+      }
+    });
   }
 
   @Put('process/pendings')
@@ -159,19 +293,44 @@ export class AitsController {
   @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async process() {
-    const processedAits = await this.processAitUseCase.processAllFines();
+    const tracer = trace.getTracer('ait-controller');
+    return await tracer.startActiveSpan(
+      'process_pending_aits',
+      async (span) => {
+        try {
+          const processedAits = await this.processAitUseCase.processAllFines();
 
-    if (processedAits instanceof EntityNotFoundError) {
-      throw new NotFoundException(processedAits.message);
-    }
+          if (processedAits instanceof EntityNotFoundError) {
+            span.setStatus({
+              code: SpanStatusCode.ERROR,
+              message: processedAits.message,
+            });
+            throw new NotFoundException(processedAits.message);
+          }
 
-    if (
-      processedAits instanceof CsvGeneratorError ||
-      processedAits instanceof PublishInQueueError
-    ) {
-      throw new InternalServerErrorException(processedAits.message);
-    }
+          if (
+            processedAits instanceof CsvGeneratorError ||
+            processedAits instanceof PublishInQueueError
+          ) {
+            span.setStatus({
+              code: SpanStatusCode.ERROR,
+              message: processedAits.message,
+            });
+            throw new InternalServerErrorException(processedAits.message);
+          }
 
-    return { message: processedAits };
+          span.setAttribute('processed_result', JSON.stringify(processedAits));
+          return { message: processedAits };
+        } catch (error) {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: error.message,
+          });
+          throw error;
+        } finally {
+          span.end();
+        }
+      },
+    );
   }
 }

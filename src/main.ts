@@ -1,7 +1,9 @@
+import '../tracer';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { PORT } from './shared/configs/envs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,8 +28,8 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
-  console.log(`API rodando em http://localhost: ${process.env.PORT ?? 3000}`);
+  await app.listen(PORT ?? 3000);
+  console.log(`API rodando em http://localhost: ${PORT ?? 3000}`);
   console.log('Swagger disponível em http://localhost:3000/swagger');
 }
 bootstrap();
